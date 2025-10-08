@@ -10,18 +10,16 @@
   <div class="container">
     <h1>📘 Share Notes Tracker</h1>
 
-    <form id="tradeForm">
+    <form id="shareForm">
       <input type="text" id="stock" placeholder="Stock Name" required />
       <input type="date" id="buyDate" required />
-      <input type="number" id="buyPrice" placeholder="Buy Price" required step="0.01" />
+      <input type="number" id="buyPrice" placeholder="Buy Price" step="0.01" required />
       <input type="number" id="quantity" placeholder="Quantity" required />
-      <input type="number" id="sellPrice" placeholder="Sell Price" step="0.01" />
-      <input type="date" id="sellDate" />
       <input type="text" id="remarks" placeholder="Remarks" />
-      <button type="submit">Add Trade</button>
+      <button type="submit">Add</button>
     </form>
 
-    <table id="tradeTable">
+    <table id="shareTable">
       <thead>
         <tr>
           <th>S.N</th>
@@ -29,13 +27,13 @@
           <th>Buy Date</th>
           <th>Buy Price</th>
           <th>Quantity</th>
-          <th>Sell Price</th>
-          <th>Sell Date</th>
           <th>Target Price</th>
           <th>Stop Loss</th>
+          <th>Sell Price</th>
+          <th>Sell Date</th>
           <th>Buy Amount</th>
           <th>Sell Amount</th>
-          <th>Profit / Loss</th>
+          <th>Profit/Loss</th>
           <th>P/L %</th>
           <th>Remarks</th>
           <th>Delete</th>
@@ -45,9 +43,9 @@
     </table>
 
     <div id="summary">
-      <p>Positive Trades: <span id="positiveCount">0</span></p>
-      <p>Negative Trades: <span id="negativeCount">0</span></p>
-      <p>Positive %: <span id="positivePercent">0</span>% | Negative %: <span id="negativePercent">0</span>%</p>
+      <p>✅ Positive Trades: <span id="positiveCount">0</span></p>
+      <p>❌ Negative Trades: <span id="negativeCount">0</span></p>
+      <p>📊 Positive %: <span id="positivePercent">0</span>% | Negative %: <span id="negativePercent">0</span>%</p>
     </div>
   </div>
 
