@@ -1,0 +1,84 @@
+body {
+  background-color: #e3f2fd;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 20px;
+}
+
+.container {
+  max-width: 95%;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  color: #0277bd;
+  margin-bottom: 20px;
+}
+
+form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+form input,
+form button {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+form button {
+  background-color: #0288d1;
+  color: white;
+  cursor: pointer;
+  border: none;
+  transition: 0.3s;
+}
+
+form button:hover {
+  background-color: #01579b;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+th {
+  background-color: #0288d1;
+  color: white;
+}
+
+td[contenteditable="true"] {
+  background-color: #f9fcff;
+}
+
+.profit {
+  background-color: #c8e6c9 !important; /* light green */
+}
+
+.loss {
+  background-color: #ffcdd2 !important; /* light red */
+}
+
+#summary {
+  margin-top: 20px;
+  text-align: center;
+  font-weight: bold;
+  color: #01579b;
+}
