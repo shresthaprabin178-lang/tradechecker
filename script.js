@@ -137,15 +137,22 @@ form.addEventListener("submit", e=>{
   const buyDate = document.getElementById("buyDate").value;
   const buyPrice = parseFloat(document.getElementById("buyPrice").value) || 0;
   const quantity = parseFloat(document.getElementById("quantity").value) || 0;
-  const remarks = document.getElementById("remarks").value;
+  const targetPrice = parseFloat(document.getElementById("targetPrice").value) || 0;
+  const stopLoss = parseFloat(document.getElementById("stopLoss").value) || 0;
+  const remarks = document.getElementById("remarks")?.value || "";
 
   shares.push({
-    stock,buyDate,buyPrice,quantity,
-    targetPrice:0,stopLoss:0,sellPrice:0,sellDate:"",remarks
+    stock,
+    buyDate,
+    buyPrice,
+    quantity,
+    targetPrice,
+    stopLoss,
+    sellPrice: 0,
+    sellDate: "",
+    remarks
   });
   saveData();
   form.reset();
   renderTable();
 });
-
-renderTable();
