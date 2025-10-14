@@ -23,8 +23,8 @@ function renderTable() {
     snCell.textContent = index + 1;
     row.appendChild(snCell);
 
-    // Editable cells
-    const editableFields = ["stock","buyDate","buyPrice","quantity","targetPrice","stopLoss","sellPrice","sellDate","remarks"];
+    // Editable cells - CORRECTED ORDER to match table headers
+    const editableFields = ["stock","buyDate","buyPrice","quantity","targetPrice","stopLoss","sellPrice","sellDate"];
     editableFields.forEach(field => {
       const cell = document.createElement("td");
       cell.contentEditable = true;
@@ -61,6 +61,16 @@ function renderTable() {
     row.appendChild(sellAmountCell);
     row.appendChild(profitCell);
     row.appendChild(profitPercentCell);
+
+    // Remarks cell - editable
+    const remarksCell = document.createElement("td");
+    remarksCell.contentEditable = true;
+    remarksCell.textContent = item.remarks || "";
+    remarksCell.addEventListener("blur", e => {
+      item.remarks = remarksCell.textContent.trim();
+      saveData();
+    });
+    row.appendChild(remarksCell);
 
     // Delete button
     const delCell = document.createElement("td");
@@ -137,17 +147,15 @@ form.addEventListener("submit", e=>{
   const buyDate = document.getElementById("buyDate").value;
   const buyPrice = parseFloat(document.getElementById("buyPrice").value) || 0;
   const quantity = parseFloat(document.getElementById("quantity").value) || 0;
-  const targetPrice = parseFloat(document.getElementById("targetPrice").value) || 0;
-  const stopLoss = parseFloat(document.getElementById("stopLoss").value) || 0;
-  const remarks = document.getElementById("remarks")?.value || "";
+  const remarks = document.getElementById("remarks").value;
 
   shares.push({
     stock,
     buyDate,
     buyPrice,
     quantity,
-    targetPrice,
-    stopLoss,
+    targetPrice: 0,
+    stopLoss: 0,
     sellPrice: 0,
     sellDate: "",
     remarks
@@ -156,3 +164,5 @@ form.addEventListener("submit", e=>{
   form.reset();
   renderTable();
 });
+
+renderTable();
