@@ -21,6 +21,19 @@ function addSymbol() {
     input.value = "";
 }
 
+function deleteSymbol(sym) {
+    if (!confirm("Delete " + sym + " column?")) return;
+
+    symbols = symbols.filter(s => s !== sym);
+
+    Object.keys(data).forEach(d => {
+        delete data[d][sym];
+    });
+
+    save();
+    render();
+}
+
 function addToday() {
     const d = today();
     if (!data[d]) {
@@ -36,7 +49,17 @@ function render() {
 
     symbols.forEach(s => {
         const th = document.createElement("th");
-        th.textContent = s;
+
+        const span = document.createElement("span");
+        span.textContent = s;
+
+        const del = document.createElement("button");
+        del.textContent = "❌";
+        del.className = "delBtn";
+        del.onclick = () => deleteSymbol(s);
+
+        th.appendChild(span);
+        th.appendChild(del);
         header.appendChild(th);
     });
 
@@ -55,10 +78,10 @@ function render() {
             const input = document.createElement("input");
 
             input.value = data[date][sym] || "";
-            input.addEventListener("input", () => {
+            input.oninput = () => {
                 data[date][sym] = input.value;
                 save();
-            });
+            };
 
             td.appendChild(input);
             tr.appendChild(td);
