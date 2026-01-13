@@ -11,13 +11,14 @@ function today() {
 }
 
 function addSymbol() {
-    const sym = document.getElementById("symbolInput").value.trim().toUpperCase();
+    const input = document.getElementById("symbolInput");
+    const sym = input.value.trim().toUpperCase();
     if (!sym || symbols.includes(sym)) return;
 
     symbols.push(sym);
     save();
     render();
-    document.getElementById("symbolInput").value = "";
+    input.value = "";
 }
 
 function addToday() {
@@ -32,6 +33,7 @@ function addToday() {
 function render() {
     const header = document.getElementById("headerRow");
     header.innerHTML = "<th>Date</th>";
+
     symbols.forEach(s => {
         const th = document.createElement("th");
         th.textContent = s;
@@ -51,11 +53,13 @@ function render() {
         symbols.forEach(sym => {
             const td = document.createElement("td");
             const input = document.createElement("input");
+
             input.value = data[date][sym] || "";
-            input.oninput = () => {
+            input.addEventListener("input", () => {
                 data[date][sym] = input.value;
                 save();
-            };
+            });
+
             td.appendChild(input);
             tr.appendChild(td);
         });
@@ -63,6 +67,9 @@ function render() {
         body.appendChild(tr);
     });
 }
+
+document.getElementById("addSymbolBtn").addEventListener("click", addSymbol);
+document.getElementById("addTodayBtn").addEventListener("click", addToday);
 
 addToday();
 render();
