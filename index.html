@@ -4,27 +4,40 @@
 <meta charset="UTF-8">
 <title>Share Trading Journal</title>
 <link rel="stylesheet" href="style.css">
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 </head>
 <body>
 
 <div class="container">
     <h1>Share Trading Journal</h1>
 
-    <div class="controls">
-        <input type="text" id="symbolInput" placeholder="Enter Symbol (e.g. NABIL)">
-        <button id="addSymbolBtn">Add Symbol</button>
-        <button id="addTodayBtn">Add Today</button>
+    <div id="loginDiv" class="controls">
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button id="loginBtn">Login / Signup</button>
     </div>
 
-    <div class="table-wrapper">
-        <table id="tradeTable">
-            <thead>
-                <tr id="headerRow">
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
+    <div id="appDiv" style="display:none;">
+        <div class="controls">
+            <input type="text" id="symbolInput" placeholder="Enter Symbol (e.g. NABIL)">
+            <button id="addSymbolBtn">Add Symbol</button>
+            <button id="addTodayBtn">Add Today</button>
+        </div>
+
+        <div class="table-wrapper">
+            <table id="tradeTable">
+                <thead>
+                    <tr id="headerRow">
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
