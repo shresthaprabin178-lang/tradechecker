@@ -1,23 +1,14 @@
-// ==============================
-// 1️⃣ Add your Firebase config here
-// ==============================
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
+// 1. Firebase Configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBpJ5BX9sljrlMKZ_uPoSUJ0ZL-yuGK7aQ",
-  authDomain: "sharetradingjournal.firebaseapp.com",
-  projectId: "sharetradingjournal",
-  storageBucket: "sharetradingjournal.firebasestorage.app",
-  messagingSenderId: "694473918046",
-  appId: "1:694473918046:web:839ba95754c26c2a9856cf"
+    apiKey: "AIzaSyBpJ5BX9sljrlMKZ_uPoSUJ0ZL-yuGK7aQ",
+    authDomain: "sharetradingjournal.firebaseapp.com",
+    projectId: "sharetradingjournal",
+    storageBucket: "sharetradingjournal.firebasestorage.app",
+    messagingSenderId: "694473918046",
+    appId: "1:694473918046:web:839ba95754c26c2a9856cf"
 };
 
-// 2️⃣ Initialize Firebase
-// ==============================
+// 2. Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
@@ -26,36 +17,40 @@ let userId = null;
 let symbols = [];
 let data = {};
 
-// ==============================
-// 3️⃣ Authentication
-// ==============================
+// 3. Authentication Logic
 document.getElementById("loginBtn").addEventListener("click", () => {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
+    if (!email || !password) {
+        alert("Please enter both email and password");
+        return;
+    }
+
     auth.signInWithEmailAndPassword(email, password)
         .then(cred => {
-            userId = cred.user.uid;
-            document.getElementById("loginDiv").style.display = "none";
-            document.getElementById("appDiv").style.display = "block";
-            loadData();
+            handleLogin(cred.user.uid);
         })
         .catch(err => {
-            // If login fails, try signup
-            auth.createUserWithEmailAndPassword(email, password)
-                .then(cred => {
-                    userId = cred.user.uid;
-                    document.getElementById("loginDiv").style.display = "none";
-                    document.getElementById("appDiv").style.display = "block";
-                    loadData();
-                })
-                .catch(e => alert("Auth error: " + e.message));
+            // If user doesn't exist, sign them up
+            if (err.code === 'auth/user-not-found') {
+                auth.createUserWithEmailAndPassword(email, password)
+                    .then(cred => handleLogin(cred.user.uid))
+                    .catch(e => alert("Signup error: " + e.message));
+            } else {
+                alert("Login error: " + err.message);
+            }
         });
 });
 
-// ==============================
-// 4️⃣ Firestore CRUD
-// ==============================
+function handleLogin(uid) {
+    userId = uid;
+    document.getElementById("loginDiv").style.display = "none";
+    document.getElementById("appDiv").style.display = "block";
+    loadData();
+}
+
+// 4. Data Management
 function loadData() {
     db.collection("users").doc(userId).get().then(doc => {
         if (doc.exists) {
@@ -67,14 +62,7 @@ function loadData() {
 }
 
 function saveData() {
-    db.collection("users").doc(userId).set({symbols, data});
-}
-
-// ==============================
-// 5️⃣ Utility Functions
-// ==============================
-function today() {
-    return new Date().toISOString().split("T")[0];
+    db.collection("users").doc(userId).set({ symbols, data });
 }
 
 function addSymbol() {
@@ -90,7 +78,6 @@ function addSymbol() {
 
 function deleteSymbol(sym) {
     if (!confirm("Delete " + sym + " column?")) return;
-
     symbols = symbols.filter(s => s !== sym);
     Object.keys(data).forEach(d => { delete data[d][sym]; });
     saveData();
@@ -98,7 +85,7 @@ function deleteSymbol(sym) {
 }
 
 function addToday() {
-    const d = today();
+    const d = new Date().toISOString().split("T")[0];
     if (!data[d]) {
         data[d] = {};
         saveData();
@@ -106,27 +93,22 @@ function addToday() {
     }
 }
 
+// 5. UI Rendering
 function render() {
     const header = document.getElementById("headerRow");
     header.innerHTML = "<th>Date</th>";
 
     symbols.forEach(s => {
         const th = document.createElement("th");
-        const span = document.createElement("span");
-        span.textContent = s;
-        const del = document.createElement("button");
-        del.textContent = "❌";
-        del.className = "delBtn";
-        del.onclick = () => deleteSymbol(s);
-        th.appendChild(span);
-        th.appendChild(del);
+        th.innerHTML = `${s} <button class="delBtn" onclick="deleteSymbol('${s}')">×</button>`;
         header.appendChild(th);
     });
 
     const body = document.getElementById("tableBody");
     body.innerHTML = "";
 
-    Object.keys(data).sort().forEach(date => {
+    // Sort dates descending (newest first)
+    Object.keys(data).sort((a, b) => b.localeCompare(a)).forEach(date => {
         const tr = document.createElement("tr");
         const tdDate = document.createElement("td");
         tdDate.textContent = date;
@@ -136,20 +118,18 @@ function render() {
             const td = document.createElement("td");
             const input = document.createElement("input");
             input.value = data[date][sym] || "";
-            input.oninput = () => {
+            input.onchange = () => { // Saves when user clicks away
+                if (!data[date]) data[date] = {};
                 data[date][sym] = input.value;
                 saveData();
             };
             td.appendChild(input);
             tr.appendChild(td);
         });
-
         body.appendChild(tr);
     });
 }
 
-// ==============================
-// 6️⃣ Attach Buttons
-// ==============================
+// 6. Event Listeners
 document.getElementById("addSymbolBtn").addEventListener("click", addSymbol);
 document.getElementById("addTodayBtn").addEventListener("click", addToday);
