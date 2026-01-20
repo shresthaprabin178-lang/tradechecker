@@ -10,47 +10,53 @@ const firebaseConfig = {
 
 // 2. Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
 const auth = firebase.auth();
+const db = firebase.firestore();
 
 let userId = null;
 let symbols = [];
 let data = {};
 
-// 3. Authentication Logic
+// 3. Login & Sign-Up Logic
 document.getElementById("loginBtn").addEventListener("click", () => {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
-    if (!email || !password) {
-        alert("Please enter both email and password");
+    if (!email || password.length < 6) {
+        alert("Please enter a valid email and a password at least 6 characters long.");
         return;
     }
 
+    // Try to Login first
     auth.signInWithEmailAndPassword(email, password)
         .then(cred => {
-            handleLogin(cred.user.uid);
+            console.log("Login Successful");
+            setupApp(cred.user.uid);
         })
-        .catch(err => {
-            // If user doesn't exist, sign them up
-            if (err.code === 'auth/user-not-found') {
-                auth.createUserWithEmailAndPassword(email, password)
-                    .then(cred => handleLogin(cred.user.uid))
-                    .catch(e => alert("Signup error: " + e.message));
-            } else {
-                alert("Login error: " + err.message);
-            }
+        .catch(error => {
+            // If login fails because user doesn't exist or wrong creds, try to SIGN UP
+            console.log("Login failed, attempting to register new user...");
+            
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(cred => {
+                    alert("Account Created Successfully!");
+                    setupApp(cred.user.uid);
+                })
+                .catch(signUpError => {
+                    // This will show if the password is too weak or email is formatted wrong
+                    alert("Authentication Error: " + signUpError.message);
+                });
         });
 });
 
-function handleLogin(uid) {
+function setupApp(uid) {
     userId = uid;
     document.getElementById("loginDiv").style.display = "none";
     document.getElementById("appDiv").style.display = "block";
     loadData();
 }
 
-// 4. Data Management
+// 4. Firestore Data Handling
 function loadData() {
     db.collection("users").doc(userId).get().then(doc => {
         if (doc.exists) {
@@ -58,30 +64,26 @@ function loadData() {
             data = doc.data().data || {};
         }
         render();
+    }).catch(err => {
+        console.error("Error loading: ", err);
+        // If you see a 'Permission Denied' error here, your Firestore Rules are blocking you.
     });
 }
 
 function saveData() {
-    db.collection("users").doc(userId).set({ symbols, data });
+    db.collection("users").doc(userId).set({ symbols, data })
+        .catch(err => alert("Firestore Error: " + err.message));
 }
 
+// 5. App UI Logic
 function addSymbol() {
     const input = document.getElementById("symbolInput");
     const sym = input.value.trim().toUpperCase();
     if (!sym || symbols.includes(sym)) return;
-
     symbols.push(sym);
     saveData();
     render();
     input.value = "";
-}
-
-function deleteSymbol(sym) {
-    if (!confirm("Delete " + sym + " column?")) return;
-    symbols = symbols.filter(s => s !== sym);
-    Object.keys(data).forEach(d => { delete data[d][sym]; });
-    saveData();
-    render();
 }
 
 function addToday() {
@@ -93,11 +95,17 @@ function addToday() {
     }
 }
 
-// 5. UI Rendering
+window.deleteSymbol = function(sym) {
+    if (!confirm("Delete " + sym + "?")) return;
+    symbols = symbols.filter(s => s !== sym);
+    Object.keys(data).forEach(d => { delete data[d][sym]; });
+    saveData();
+    render();
+};
+
 function render() {
     const header = document.getElementById("headerRow");
     header.innerHTML = "<th>Date</th>";
-
     symbols.forEach(s => {
         const th = document.createElement("th");
         th.innerHTML = `${s} <button class="delBtn" onclick="deleteSymbol('${s}')">×</button>`;
@@ -106,20 +114,16 @@ function render() {
 
     const body = document.getElementById("tableBody");
     body.innerHTML = "";
-
-    // Sort dates descending (newest first)
     Object.keys(data).sort((a, b) => b.localeCompare(a)).forEach(date => {
         const tr = document.createElement("tr");
         const tdDate = document.createElement("td");
         tdDate.textContent = date;
         tr.appendChild(tdDate);
-
         symbols.forEach(sym => {
             const td = document.createElement("td");
             const input = document.createElement("input");
             input.value = data[date][sym] || "";
-            input.onchange = () => { // Saves when user clicks away
-                if (!data[date]) data[date] = {};
+            input.onchange = () => {
                 data[date][sym] = input.value;
                 saveData();
             };
@@ -130,6 +134,5 @@ function render() {
     });
 }
 
-// 6. Event Listeners
 document.getElementById("addSymbolBtn").addEventListener("click", addSymbol);
 document.getElementById("addTodayBtn").addEventListener("click", addToday);
